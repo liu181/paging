@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<table class="table" id="table"></table>
+	<div class="page_des" id="pageDes"></div>
+	<div id="page"></div>
+	<script>
+		// 用户管理表格
+		var head = 
+			'<thead><tr>'+  
+		    '<td> <input type="checkbox"> </td>'+  
+		    '<td> aaa </td>'+  
+		    '<td> 密码 </td>'+  
+		    '<td> 角色 </td>'+  
+		    '<td> 邮箱 </td>'+  
+		    '<td> 手机号 </td>'+  
+		    '<td> 生效时间 </td>'+  
+		    '<td> 失效时间 </td>'+  
+		    '<td> 最近登陆时间 </td>'+  
+		    '<td> 操作 </td>'+  
+		    '</tr></thead><tbody>';
+		// 所有数据
+		var pageData = [];
+		// 数据拼接后的字符串
+		var pageContent = '';
+		// 想要13条数据
+		for(var i = 1; i <= 49; i++){  
+		    var data='<tr>'+  
+		    '<td><input type="checkbox"></td>'+ 
+		    '<td>用户'+i+'</td>'+  
+		    '<td>'+Math.round(Math.random()*20)+'</td>'+  
+		    '<td>'+Math.round(Math.random()*5)+'颗星</td>'+  
+		    '<td>'+Math.round(Math.random()*100)+'</td>'+  
+		    '<td>'+Math.round(Math.random()*123)+'cm</td>'+  
+		    '<td>'+Math.round(Math.random()*13)+'cm</td>'+  
+		    '<td>'+Math.round(Math.random()*5)+'cm</td>'+  
+		    '<td>'+Math.round(Math.random()*777)+'cm</td>'+  
+		    '<td>'+Math.round(Math.random()*12)+'cm</td>'+  
+		    '</tr>';  
+		    pageData.push(data);  
+		} 
+		//表结尾  
+		var end='</tbody>';  
+		// 数据条数
+		var dataCount = pageData.length; 
+		// 每页数据条数
+		var PageSize=12;
+		// 总页数
+		var PageCount=Math.ceil(dataCount/PageSize);
+		//当前页，默认为1。
+		var currentPage = 1;
+		// 获取页面分页dom
+		var page = getId('page');
+		// 分页按钮实现
+		var pageN = '';
+
+		pageN += '<a href="#" class="prevPage">上一页</a>'
+		for(var i = 1;i <= PageCount; i++){
+			pageN += '<a href="#" selectPage="'+i+'" >第'+i+'页</a>';  
+		}
+		pageN += '<a href="#" class="nextPage">下一页</a>'
+
+		inText(page, pageN)
+
+		// 表格部分
+		var table = getId("table");
+		renderTable()
+
+
+		// 点击按钮选择分页
+
+		var selectPage = querAll('a[selectPage]');
+
+		console.log(selectPage)
+		for(var i = 0; i < selectPage.length; i++){
+			selectPage[i].index = selectPage[i].getAttribute('selectPage')
+			selectPage[i].addEventListener('click', function (e) {
+				// 阻止默认事件
+				e.preventDefault();
+				currentPage = Number(this.index);
+				// 渲染
+				var that = this
+				renderTable(that)
+				console.log(5)
+			})
+		}
+		// 上一页 下一页
+		var nextPage = quer(".nextPage");
+		var prevPage = quer(".prevPage");
+		nextPage.addEventListener('click', function () {
+			if(currentPage >= PageCount){
+				return;
+			}
+			currentPage += 1;
+			renderTable()
+		})
+		prevPage.addEventListener('click', function () {
+			if(currentPage <= 1){
+				return;
+			}
+			currentPage -= 1;
+			renderTable()
+
+		})
+		// 渲染函数
+		function renderTable (that) {
+			// 页面描述
+			var pageDes = getId("pageDes")
+			inText(pageDes, "共" + dataCount + "条记录，当前显示第" + currentPage + "页");
+			var selectPage = !that ? currentPage : that.getAttribute('selectPage')
+			var finalVal = PageSize*selectPage <= dataCount ? PageSize*selectPage : dataCount;
+			table.innerHTML = '';
+			pageContent = '';
+			for(var i = (selectPage-1)*PageSize; i< finalVal; i++){  
+		        pageContent += pageData[i]
+		        
+		    } 
+
+		    table.innerHTML = head + pageContent + end;
+		}
+
+
+
+		function inText (obj, str) {
+			obj.innerHTML = str;
+		}
+		function isCorrectEmail(str) {
+			var reg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/; 
+			return reg.test(str); 
+		}
+		function isCorrectPhone (str) {
+			var reg = /^1[34578]\d{9}$/;
+			return reg.test(str); 
+		}
+		function getId(id) {
+		    return document.getElementById(id)
+		}
+
+		function quer(val) {
+		    return document.querySelector(val)
+		}
+		function querAll(val) {
+		    return document.querySelectorAll(val)
+		}
+
+		function isEmpty(that, mes) {
+			var index = that.attributes.index.value
+			
+			if(that.value === ''){
+				mes[index].innerHTML = that.attributes.vv.value + '不能为空';
+				classWrong(mes[index])
+				console.log(mes[index])
+				return true;
+			} else {
+				mes[index].innerHTML ='';
+				classCorrect(mes[index])
+				
+			}
+			
+		}
+
+
+		function hasClass(obj, cls) {  
+			return obj.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));  
+		}   
+		  
+		function addClass(obj, cls) {  
+		    if (!hasClass(obj, cls)) obj.className += " " + cls;  
+		}  
+		  
+		function removeClass(obj, cls) { 
+		    if (hasClass(obj, cls)) {  
+		        var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');  
+		        obj.className = obj.className.replace(reg, '');  
+		    }  
+		}
+		function classWrong (obj) {
+			removeClass(obj, 'correct')
+			addClass(obj, 'wrong')
+		}
+		function classCorrect (obj) {
+			removeClass(obj, 'wrong')
+			addClass(obj, 'correct')
+		}
+	</script>
+</body>
+</html>
